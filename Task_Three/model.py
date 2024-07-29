@@ -26,7 +26,9 @@ class Fire(nn.Module):
         self.squeeze = nn.Conv1d(inplanes, squeeze_planes, kernel_size=1)
         self.relu = nn.ReLU(inplace=True)
         self.expand1x1 = nn.Conv1d(squeeze_planes, expand1x1_planes, kernel_size=1)
+        self.relu = nn.ReLU(inplace=True)
         self.expand3x3 = nn.Conv1d(squeeze_planes, expand3x3_planes, kernel_size=3, padding=1)
+        self.relu = nn.ReLU(inplace=True)
 
     def forward(self, x):
         x = self.squeeze(x)
@@ -63,14 +65,14 @@ class SqueezeNet1D(nn.Module):
             nn.Conv1d(512, 75, kernel_size=3, stride=2, padding=0),
             nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool1d(3),
-            nn.Conv1d(75, 75, kernel_size=3, stride=2, padding=0),  # Changed to 1x1 convolution
+            nn.Conv1d(75, 75, kernel_size=3, stride=2, padding=0),
         )
 
     def forward(self, x):
         x = self.features(x)
         x = self.classifier(x)
         #x = x.reshape(32, 1, 75)
-        x = torch.flatten(x, 1)
+        #x = torch.flatten(x, 1)
         return x
 
 
@@ -80,4 +82,4 @@ if __name__ == "__main__":
     model = SqueezeNet1D()
     input_tensor = torch.randn(32, 12, 500)
     output = model(input_tensor)
-    print(f"Output shape: {output.shape}")  # Expected: torch.Size([32, 75])
+    print(f"Output shape: {output.shape}")  # Expected: torch.Size([32, 1, 75])

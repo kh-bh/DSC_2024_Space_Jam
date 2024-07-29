@@ -25,9 +25,9 @@ class ECGDataset(Dataset):
 
         # Load and process Vm data
         vm_data = np.load(vm_file)
-        #vm_data = vm_data.T
+
         activation_time = get_activation_time(vm_data)
-        activation_time = activation_time.T
+        #activation_time = activation_time.T
 
         return torch.FloatTensor(ecg_data), torch.FloatTensor(activation_time)
 
