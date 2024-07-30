@@ -24,19 +24,27 @@ class Fire(nn.Module):
     def __init__(self, inplanes, squeeze_planes, expand1x1_planes, expand3x3_planes):
         super(Fire, self).__init__()
         self.squeeze = nn.Conv1d(inplanes, squeeze_planes, kernel_size=1)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn1 = nn.BatchNorm1d(squeeze_planes)
+        self.LeakyReLU = nn.LeakyReLU(inplace=True)
         self.expand1x1 = nn.Conv1d(squeeze_planes, expand1x1_planes, kernel_size=1)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn2 = nn.BatchNorm1d(expand1x1_planes)
+        self.LeakyReLU = nn.LeakyReLU(inplace=True)
         self.expand3x3 = nn.Conv1d(squeeze_planes, expand3x3_planes, kernel_size=3, padding=1)
-        self.relu = nn.ReLU(inplace=True)
+        self.bn3 = nn.BatchNorm1d(expand3x3_planes)
+        self.LeakyReLU = nn.LeakyReLU(inplace=True)
 
     def forward(self, x):
         x = self.squeeze(x)
-        x = self.relu(x)
+        x = self.bn1(x)
+        x = self.LeakyReLU(x)
         out1x1 = self.expand1x1(x)
+        out1x1 = self.bn2(out1x1)
+        out1x1 = self.LeakyReLU(out1x1)
         out3x3 = self.expand3x3(x)
+        out3x3 = self.bn3(out3x3)
+        out3x3 = self.LeakyReLU(out3x3)
         out = torch.cat([out1x1, out3x3], dim=1)
-        return self.relu(out)
+        return self.LeakyReLU(out)
 
 
 class SqueezeNet1D(nn.Module):
@@ -45,7 +53,8 @@ class SqueezeNet1D(nn.Module):
 
         self.features = nn.Sequential(
             nn.Conv1d(12, 64, kernel_size=3, stride=2, padding=1),
-            nn.ReLU(inplace=True),
+            nn.BatchNorm1d(64),
+            nn.LeakyReLU(inplace=True),
             nn.MaxPool1d(kernel_size=3, stride=2, padding=1, ceil_mode=True),
             Fire(64, 16, 64, 64),
             Fire(128, 16, 64, 64),
@@ -63,10 +72,18 @@ class SqueezeNet1D(nn.Module):
         # Adjust the classifier
         self.classifier = nn.Sequential(
             nn.Conv1d(512, 75, kernel_size=3, stride=2, padding=0),
-            nn.ReLU(inplace=True),
+            nn.BatchNorm1d(75),
+            nn.LeakyReLU(inplace=True),
             nn.AdaptiveAvgPool1d(3),
             nn.Conv1d(75, 75, kernel_size=3, stride=2, padding=0),
         )
+
+        for m in self.modules():
+            if isinstance(m, nn.Conv1d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='leaky_relu')
+            elif isinstance(m, nn.BatchNorm1d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
 
     def forward(self, x):
         x = self.features(x)
