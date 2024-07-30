@@ -55,7 +55,7 @@ if __name__ == "__main__":
     # Assuming you have a list of file pairs
     data_dirs = []
     regex = r'data_hearts_dd_0p2*'
-    DIR = '../../intracardiac_dataset/'  # This should be the path to the intracardiac_dataset, it can be downloaded using data_science_challenge_2023/download_intracardiac_dataset.sh
+    DIR = '../intracardiac_dataset/'  # This should be the path to the intracardiac_dataset, it can be downloaded using data_science_challenge_2023/download_intracardiac_dataset.sh
     for x in os.listdir(DIR):
         if re.match(regex, x):
             data_dirs.append(DIR + x)

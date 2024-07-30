@@ -1,6 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
 
 
 # Conv 1D: filters = 64, kernel = 3, stride =2 ,padding = 1

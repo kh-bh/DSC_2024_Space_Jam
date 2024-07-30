@@ -1,5 +1,8 @@
 import os
+import random
 import re
+
+import numpy as np
 
 import torch
 from torch.utils.data import DataLoader
@@ -9,9 +12,10 @@ from cardiac_ml_tools import read_data_dirs
 from dataloader import ECGDataset
 from model import SqueezeNet1D
 from trainer import train
+from inference import inference
 
 if __name__ == "__main__":
-    writer = SummaryWriter("log/experiment10")
+    writer = SummaryWriter("log/experiment13")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SqueezeNet1D().to(device)
@@ -28,15 +32,28 @@ if __name__ == "__main__":
     print("{}\n{}".format(file_pairs[0][0], file_pairs[0][1]))
     print("{}".format(file_pairs[1]))
 
-    train_file_pairs = file_pairs[0:12893]
-    val_file_pairs = file_pairs[12893:14505]
-    test_file_pairs = file_pairs[14505:]
+    random.shuffle(file_pairs)
 
-    train_dataset = ECGDataset(train_file_pairs)
-    val_dataset = ECGDataset(val_file_pairs)
+    train_file_pairs = np.array(file_pairs[0:12893])
+    np.save('train.npy', train_file_pairs)
+
+    val_file_pairs = np.array(file_pairs[12893:14505])
+    np.save('val.npy', val_file_pairs)
+
+    test_file_pairs = np.array(file_pairs[14505:])
+    np.save('test.npy', test_file_pairs)
+
+    train_dataset = ECGDataset(np.load('train.npy'))
+    val_dataset = ECGDataset(np.load('val.npy'))
+
     train_loader = DataLoader(train_dataset, batch_size=32, num_workers=20, shuffle=True, pin_memory=True)
     val_loader = DataLoader(val_dataset, batch_size=32, num_workers=20, pin_memory=True)
 
-    trained_model = train(writer, device, model, train_loader, val_loader, num_epochs=100, learning_rate=0.001)
+    trained_model = train(writer, device, model, train_loader, val_loader, num_epochs=200, learning_rate=0.001)
 
     writer.close()
+
+    # avg_err, std_err = inference(np.load('test.npy'))
+    #
+    # print(f"Average error: {avg_err:.2f} msec")
+    # print(f"Standard deviation of error: {std_err:.2f} msec")

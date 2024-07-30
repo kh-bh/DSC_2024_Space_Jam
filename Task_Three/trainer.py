@@ -1,6 +1,7 @@
 import torch
 import torch.optim as optim
 
+
 # def train(model, train_loader, val_loader, num_epochs, learning_rate):
 #     criterion = torch.nn.MSELoss()
 #     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -100,7 +101,7 @@ import torch.optim as optim
 def train(writer, device, model, train_loader, val_loader, num_epochs, learning_rate):
     criterion = torch.nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5, factor=0.1)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, 100, gamma=1.0)
 
     best_val_loss = float('inf')
     for epoch in range(num_epochs):
@@ -135,7 +136,7 @@ def train(writer, device, model, train_loader, val_loader, num_epochs, learning_
 
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
-            torch.save(model.state_dict(), 'best_model.pth')
+            torch.save(model.state_dict(), 'best_model_LRonPlat.pth')
 
     print(f'Best validation loss: {best_val_loss:.4f}')
     return model
