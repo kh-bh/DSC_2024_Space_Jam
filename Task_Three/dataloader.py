@@ -19,9 +19,9 @@ class ECGDataset(Dataset):
         # Load ECG data
         ecg_data = np.load(ecg_file)
         ecg_data = get_standard_leads(ecg_data)  # Convert to 12-lead
-        ecg_data = self.normalize_ecg(ecg_data)
+        ecg_data = self.normalize_ecg(ecg_data)  # Gives tensor of dimensions [500,12]
 
-        ecg_data = ecg_data.T
+        ecg_data = ecg_data.T  # Gives tensor of dimensions [12, 500]
 
         # Load and process Vm data
         vm_data = np.load(vm_file)
