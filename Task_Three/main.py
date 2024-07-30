@@ -11,7 +11,7 @@ from model import SqueezeNet1D
 from trainer import train
 
 if __name__ == "__main__":
-    writer = SummaryWriter("log/experiment4")
+    writer = SummaryWriter("log/experiment10")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SqueezeNet1D().to(device)
@@ -37,6 +37,6 @@ if __name__ == "__main__":
     train_loader = DataLoader(train_dataset, batch_size=32, num_workers=20, shuffle=True, pin_memory=True)
     val_loader = DataLoader(val_dataset, batch_size=32, num_workers=20, pin_memory=True)
 
-    trained_model = train(writer, device, model, train_loader, val_loader, num_epochs=1000, learning_rate=0.001)
+    trained_model = train(writer, device, model, train_loader, val_loader, num_epochs=100, learning_rate=0.001)
 
     writer.close()
