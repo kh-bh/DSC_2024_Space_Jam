@@ -6,5 +6,5 @@
 /.idea/modules.xml
 /.idea/inspectionProfiles/profiles_settings.xml
 /.idea/vcs.xml
-/Task_Three/best_model.pth
+/Task_Three/best_model_LRonPlat.pth
 /Task_Three/log/
