@@ -24,26 +24,26 @@ class Fire(nn.Module):
         super(Fire, self).__init__()
         self.squeeze = nn.Conv1d(inplanes, squeeze_planes, kernel_size=1)
         self.bn1 = nn.BatchNorm1d(squeeze_planes)
-        self.LeakyReLU = nn.LeakyReLU(inplace=True)
+        self.ReLU = nn.ReLU(inplace=True)
         self.expand1x1 = nn.Conv1d(squeeze_planes, expand1x1_planes, kernel_size=1)
         self.bn2 = nn.BatchNorm1d(expand1x1_planes)
-        self.LeakyReLU = nn.LeakyReLU(inplace=True)
+        self.ReLU = nn.ReLU(inplace=True)
         self.expand3x3 = nn.Conv1d(squeeze_planes, expand3x3_planes, kernel_size=3, padding=1)
         self.bn3 = nn.BatchNorm1d(expand3x3_planes)
-        self.LeakyReLU = nn.LeakyReLU(inplace=True)
+        self.ReLU = nn.ReLU(inplace=True)
 
     def forward(self, x):
         x = self.squeeze(x)
         x = self.bn1(x)
-        x = self.LeakyReLU(x)
+        x = self.ReLU(x)
         out1x1 = self.expand1x1(x)
         out1x1 = self.bn2(out1x1)
-        out1x1 = self.LeakyReLU(out1x1)
+        out1x1 = self.ReLU(out1x1)
         out3x3 = self.expand3x3(x)
         out3x3 = self.bn3(out3x3)
-        out3x3 = self.LeakyReLU(out3x3)
+        out3x3 = self.ReLU(out3x3)
         out = torch.cat([out1x1, out3x3], dim=1)
-        return self.LeakyReLU(out)
+        return self.ReLU(out)
 
 
 class SqueezeNet1D(nn.Module):
@@ -53,7 +53,7 @@ class SqueezeNet1D(nn.Module):
         self.features = nn.Sequential(
             nn.Conv1d(12, 64, kernel_size=3, stride=2, padding=1),
             nn.BatchNorm1d(64),
-            nn.LeakyReLU(inplace=True),
+            nn.ReLU(inplace=True),
             nn.MaxPool1d(kernel_size=3, stride=2, padding=1, ceil_mode=True),
             Fire(64, 16, 64, 64),
             Fire(128, 16, 64, 64),
@@ -72,7 +72,7 @@ class SqueezeNet1D(nn.Module):
         self.classifier = nn.Sequential(
             nn.Conv1d(512, 75, kernel_size=3, stride=2, padding=0),
             nn.BatchNorm1d(75),
-            nn.LeakyReLU(inplace=True),
+            nn.ReLU(inplace=True),
             nn.AdaptiveAvgPool1d(3),
             nn.Conv1d(75, 75, kernel_size=3, stride=2, padding=0),
         )

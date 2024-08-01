@@ -16,7 +16,7 @@ def inference(test_file_pairs):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     model = SqueezeNet1D().to(device)
-    model.load_state_dict(torch.load('best_model_StepLR.pth'))
+    model.load_state_dict(torch.load('model_20240731_114038_200.pth'))
     model.eval()
 
     # data_dirs = []
@@ -36,22 +36,25 @@ def inference(test_file_pairs):
     #test_file_pairs = np.load('test.npy')
     test_dataset = ECGDataset(test_file_pairs)
 
-    test_loader = DataLoader(test_dataset, batch_size=1, num_workers=20, shuffle=True, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=1, num_workers=20, pin_memory=True)
 
     criterion = nn.L1Loss()
 
     all_errors = []
-
+    predictions = []
     with torch.no_grad():
         for X, Y in test_loader:
             X_gpu, Y_gt_gpu = X.to(device), Y.to(device)
             Y_pred = model(X_gpu)
 
+            predictions.append(Y_pred.cpu().numpy())
+
             errors = criterion(Y_pred, Y_gt_gpu)
             all_errors.append(float(errors.cpu().numpy()))
 
-    # Concatenate all errors
-    #all_errors = np.concatenate(all_errors, axis=0)
+    all_predictions = np.array(predictions, dtype=int)
+
+    np.save('predictions.npy', all_predictions)
 
     # Calculate average error and standard deviation across all samples and recording points
     avg_error = np.mean(all_errors)
@@ -66,3 +69,6 @@ def inference(test_file_pairs):
 if __name__ == "__main__":
     test_file_pairs = np.load('test.npy')
     inference(test_file_pairs=test_file_pairs)
+
+    #output = get_graphs(test_file_pairs=test_file_pairs)
+    #print(output)

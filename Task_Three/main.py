@@ -1,6 +1,7 @@
 import os
 import random
 import re
+from datetime import datetime
 
 import numpy as np
 
@@ -12,10 +13,11 @@ from cardiac_ml_tools import read_data_dirs
 from dataloader import ECGDataset
 from model import SqueezeNet1D
 from trainer import train
-from inference import inference
 
 if __name__ == "__main__":
-    writer = SummaryWriter("log/experiment13")
+    run_id = datetime.now().strftime('%Y%m%d_%H%M%S')
+    log_dir = os.path.join("log", f"experiment_{run_id}")
+    writer = SummaryWriter(log_dir)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model = SqueezeNet1D().to(device)
@@ -32,16 +34,16 @@ if __name__ == "__main__":
     print("{}\n{}".format(file_pairs[0][0], file_pairs[0][1]))
     print("{}".format(file_pairs[1]))
 
-    random.shuffle(file_pairs)
-
-    train_file_pairs = np.array(file_pairs[0:12893])
-    np.save('train.npy', train_file_pairs)
-
-    val_file_pairs = np.array(file_pairs[12893:14505])
-    np.save('val.npy', val_file_pairs)
-
-    test_file_pairs = np.array(file_pairs[14505:])
-    np.save('test.npy', test_file_pairs)
+    # random.shuffle(file_pairs)
+    #
+    # train_file_pairs = np.array(file_pairs[0:12893])
+    # np.save('train.npy', train_file_pairs)
+    #
+    # val_file_pairs = np.array(file_pairs[12893:14505])
+    # np.save('val.npy', val_file_pairs)
+    #
+    # test_file_pairs = np.array(file_pairs[14505:])
+    # np.save('test.npy', test_file_pairs)
 
     train_dataset = ECGDataset(np.load('train.npy'))
     val_dataset = ECGDataset(np.load('val.npy'))
