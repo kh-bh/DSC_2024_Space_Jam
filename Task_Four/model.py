@@ -10,10 +10,8 @@ class Fire(nn.Module):
         self.LeakyReLU = nn.LeakyReLU(inplace=False)
         self.expand1x1 = nn.Conv1d(squeeze_planes, expand1x1_planes, kernel_size=1)
         self.bn2 = nn.BatchNorm1d(expand1x1_planes)
-        #self.LeakyReLU = nn.LeakyReLU(inplace=True)
         self.expand3x3 = nn.Conv1d(squeeze_planes, expand3x3_planes, kernel_size=3, padding=1)
         self.bn3 = nn.BatchNorm1d(expand3x3_planes)
-        #self.LeakyReLU = nn.LeakyReLU(inplace=True)
 
     def forward(self, x):
         x = self.squeeze(x)
@@ -66,12 +64,8 @@ class SqueezeNet1D(nn.Module):
             nn.Dropout(p=0.1),
         )
 
-        # Adjust the classifier
         self.classifier = nn.Sequential(
             nn.Conv1d(512, 75, kernel_size=1, padding=0),
-            # nn.BatchNorm1d(75),
-            # nn.LeakyReLU(inplace=True),
-            # nn.Conv1d(75, 75, kernel_size=1, stride=1, padding=0)
         )
 
         for m in self.modules():

@@ -2,6 +2,7 @@ import os
 import re
 
 import numpy as np
+from scipy import stats
 
 import torch
 from torch.utils.data import DataLoader
@@ -42,16 +43,38 @@ def inference(test_file_pairs, model_path):
 
     np.save('predictions.npy', all_predictions)
 
-    # Calculate average error and standard deviation across all samples and recording points
-    avg_error = np.mean(all_errors)
-    std_error = np.std(all_errors)
 
-    print(f"Average error: {avg_error:.2f} msec")
-    print(f"Standard deviation of error: {std_error:.2f} msec")
+def calculate_pearson_correlation(predictions, ground_truth_pairs):
+    """
+    Calculate the Pearson correlation coefficient between predicted
+    transmembrane potentials and ground truth potentials loaded from paired files.
 
-    return avg_error, std_error
+    :param predictions: numpy array of shape (num_samples, num_time_steps)
+                        containing predicted potentials
+    :param ground_truth_pairs: numpy array of shape (num_samples, 2) containing pairs of
+                               [pECG_filename, VM_filename] for each sample
+    :return: numpy array of shape (num_samples,) containing Pearson
+             correlation coefficients for each sample
+    """
+    num_samples = len(ground_truth_pairs)
+    correlations = np.zeros(num_samples)
+
+    for i, (_, vm_file) in enumerate(ground_truth_pairs):
+        # Load ground truth VM data
+        ground_truth = np.load(vm_file)
+
+        # Ensure both arrays are 1D
+        pred = predictions[i].flatten()
+        truth = ground_truth.T.flatten()
+
+        correlation, _ = stats.pearsonr(pred, truth)
+        correlations[i] = correlation
+
+    return correlations
 
 
 if __name__ == "__main__":
     test_file_pairs = np.load('test.npy')
-    inference(test_file_pairs=test_file_pairs, model_path="model_20240731_171505_1000.pth")
+    #inference(test_file_pairs=test_file_pairs, model_path="model_20240731_171505_1000.pth")
+    c = calculate_pearson_correlation(np.load('predictions.npy'), np.load('test.npy'))
+    print(np.mean(c))
