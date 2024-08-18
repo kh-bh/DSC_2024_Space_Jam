@@ -1,0 +1,17 @@
+/intracardiac_dataset/
+/Task_One/ecg_dataset/
+/Task_Two/ecg_dataset/
+/.idea/DSC_2024_Space_Jam.iml
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/inspectionProfiles/profiles_settings.xml
+/.idea/vcs.xml
+/Task_Three/best_model_LRonPlat.pth
+/Task_Three/log/
+/Task_Four/log/
+/Task_Three/trained_models/model_20240731_114038_200.pth
+/Task_Four/trained_models/model_20240731_171505_1000.pth
+/Task_Four/trained_models/model_20240731_141902_500.pth
+/Task_Three/trained_models/best_model_LRonPlat.pth
+/Task_Four/data/predictions.npy
+/Task_Three/data/predictions.npy
