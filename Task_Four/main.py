@@ -46,8 +46,8 @@ if __name__ == "__main__":
     # test_file_pairs = np.array(file_pairs[14505:])
     # np.save('test.npy', test_file_pairs)
 
-    train_dataset = ECGDataset(np.load('train.npy'))
-    val_dataset = ECGDataset(np.load('val.npy'))
+    train_dataset = ECGDataset(np.load('./data/train.npy'))
+    val_dataset = ECGDataset(np.load('./data/val.npy'))
 
     train_loader = DataLoader(train_dataset, batch_size=32, num_workers=20, shuffle=True, pin_memory=True)
     val_loader = DataLoader(val_dataset, batch_size=32, num_workers=20, pin_memory=True)
