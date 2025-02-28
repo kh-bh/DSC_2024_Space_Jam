@@ -61,20 +61,34 @@ def calculate_pearson_correlation(predictions, ground_truth_pairs):
 
     for i, (_, vm_file) in enumerate(ground_truth_pairs):
         # Load ground truth VM data
-        ground_truth = np.load(vm_file)
+        ground_truth = np.load(vm_file).T
 
         # Ensure both arrays are 1D
-        pred = predictions[i].flatten()
-        truth = ground_truth.T.flatten()
+        pred = predictions[i].squeeze(0)
+        pred_flat = pred.flatten()
 
-        correlation, _ = stats.pearsonr(pred, truth)
+        truth_flat = ground_truth.flatten()
+
+        correlation, _ = stats.pearsonr(pred_flat, truth_flat)
         correlations[i] = correlation
 
     return correlations
 
+def calculate_rmse(predictions, ground_truth_pairs):
+    errors = []
+    for i, (_, vm_file) in enumerate(ground_truth_pairs):
+        ground_truth = np.load(vm_file).T  # (75, 500)
+        pred = predictions[i].squeeze(0)    # (75, 500)
+        rmse = np.sqrt(np.mean((pred - ground_truth)**2))
+        errors.append(rmse)
+    return np.array(errors)
+
 
 if __name__ == "__main__":
-    test_file_pairs = np.load('test.npy')
+    test_file_pairs = np.load('./data/test.npy')
     #inference(test_file_pairs=test_file_pairs, model_path="model_20240731_171505_1000.pth")
-    c = calculate_pearson_correlation(np.load('predictions.npy'), np.load('test.npy'))
+    c = calculate_pearson_correlation(np.load('./data/predictions.npy'), np.load('./data/test.npy'))
     print(np.mean(c))
+
+    rmse = calculate_rmse(np.load('./data/predictions.npy'), np.load('./data/test.npy'))
+    print(np.mean(rmse))

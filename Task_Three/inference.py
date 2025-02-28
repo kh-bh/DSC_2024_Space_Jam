@@ -16,7 +16,7 @@ def inference(test_file_pairs):
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     model = SqueezeNet1D().to(device)
-    model.load_state_dict(torch.load('model_20240731_114038_200.pth'))
+    model.load_state_dict(torch.load('./trained_models/model_20240731_114038_200.pth'))
     model.eval()
 
     # data_dirs = []
